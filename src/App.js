@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import pf from 'quick-primefactors';
 import Equations, { DEFAULT_PRECISION, MAX_PRECISION } from './Equations';
 import { Box, FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
+import PrimeFactors from './PrimeFactors';
 
 const MAX_NUMBER = 9999 + 1;
 
-function App() {
+const App = props => {
+  const {padding='.5rem'} = props;
   const [number, setNumber] = useState(27);
   const [precision, setPrecision] = useState(DEFAULT_PRECISION);
   const [fontSize, setFontSize] = useState("40pt");
@@ -13,10 +14,10 @@ function App() {
   const precision_int = parseInt(precision);
   // const prime_factors = n < 1000000 ? pf(n) : [];
 
-  const rendered = n >= MAX_NUMBER ? <Typography>Please enter number smaller than {MAX_NUMBER}.</Typography> :
+  const rendered = (isNaN(n) || n >= MAX_NUMBER) ? <Typography>Please enter number smaller than {MAX_NUMBER}.</Typography> :
     <Box sx={{ border: 'solid 0px green' }}>
-      {/* prime_factors={prime_factors.join(', ')} */}
-      < Equations n={n} precision={precision_int} sx={{ fontSize }} />
+      <Equations n={n} precision={precision_int} sx={{ fontSize }} padding={padding} />
+      <PrimeFactors n={n} sx={{ fontSize, padding }} />
     </Box>;
 
   return (

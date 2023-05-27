@@ -9,10 +9,6 @@ export const MAX_PRECISION = 4;
 // allows me to use single backslashes for easier reading of formulas in the code
 const _r = String.raw;
 
-const is_integer = n => {
-    return parseInt(n) === n;
-}
-
 const format = (n, is_exact, fmt) => (is_exact ? n : printf(fmt, n));
 
 const code = (n, precision) => {
@@ -46,16 +42,15 @@ const code = (n, precision) => {
 
 
 const Equations = props => {
-    const { n, precision, ...rest } = props;
+    const { n, precision, padding, ...rest } = props;
     if (isNaN(n) || isNaN(precision))
         return <Typography variant="p">Enter a number</Typography>;
 
     return (
         <Box {...rest}>
-
             {
                 code(n, precision < 0 ? DEFAULT_PRECISION : precision).map((eq, idx) =>
-                    <Box sx={{ margin: '1rem', border: 'dashed 1px maroon', padding: '1rem' }}>
+                    <Box sx={{ margin: padding, border: 'dashed 1px maroon', padding }}>
                         <MathJaxProvider>
                             <Equation key={idx} index={idx} formula={eq} />
                         </MathJaxProvider>
