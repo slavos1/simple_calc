@@ -12,7 +12,8 @@ const PrimeFactors = props => {
     console.log('pf_grouped=', pf_grouped);
     const formula = `\\,(${n}=${_.map(pf_grouped, (value, key) => `${key}${value.length > 1 ? `^${value.length}` : ''}`).join('\\times')})`;
     const grouped = <MathJaxNode inline={true} formula={formula} />
-    const factors = _.keys(pf_grouped);
+    // XXX _.keys returns any keys as strings, not integers as assumed ...
+    const factors = _.keys(pf_grouped).map(key => parseInt(key));
 
     let contents;
     if (n === 1) {
@@ -23,7 +24,7 @@ const PrimeFactors = props => {
                 Prime {factors.length > 1 ? 'factors' : 'factor'}
                 {' '}of {n}
                 {' '}{factors.length > 1 ? 'are' : 'is'}
-                {' '}{factors.sort().join(', ')} &mdash; </ Typography>
+                {' '}{_.sortBy(factors).join(', ')} &mdash; </ Typography>
 
             <Typography variant="p">{n} is a <strong>{prime_factors.length > 1 ? 'composite' : 'prime'}</strong> number
                 {prime_factors.length > 1 && grouped}
