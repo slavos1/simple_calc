@@ -1,4 +1,6 @@
-# Getting Started with Create React App
+# About
+
+A simple calculator for square roots in MathJax.
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
