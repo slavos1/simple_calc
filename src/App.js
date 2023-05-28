@@ -7,15 +7,16 @@ const MAX_NUMBER = 9999 + 1;
 
 const App = props => {
   const {padding='.5rem'} = props;
-  const [number, setNumber] = useState(27);
+  const [number, setNumber] = useState(64);
   const [precision, setPrecision] = useState(DEFAULT_PRECISION);
-  const [fontSize, setFontSize] = useState("40pt");
+  const [fontSize, setFontSize] = useState("20pt");
   const n = parseInt(number);
   const precision_int = parseInt(precision);
   // const prime_factors = n < 1000000 ? pf(n) : [];
 
   const rendered = (isNaN(n) || n >= MAX_NUMBER) ? <Typography>Please enter number smaller than {MAX_NUMBER}.</Typography> :
     <Box sx={{ border: 'solid 0px green' }}>
+      {/* TODO split equations and prime factors to two columns */}
       <Equations n={n} precision={precision_int} sx={{ fontSize }} padding={padding} />
       <PrimeFactors n={n} sx={{ fontSize, padding }} />
     </Box>;

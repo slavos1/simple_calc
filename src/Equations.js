@@ -1,7 +1,5 @@
-import { MathJaxProvider } from '@yozora/react-mathjax';
 import Equation from './Equation';
 import { Box, Typography } from '@mui/material';
-import { printf } from 'fast-printf';
 
 export const DEFAULT_PRECISION = 2;
 export const MAX_PRECISION = 4;
@@ -9,55 +7,59 @@ export const MAX_PRECISION = 4;
 // allows me to use single backslashes for easier reading of formulas in the code
 const _r = String.raw;
 
-const format = (n, is_exact, fmt) => (is_exact ? n : printf(fmt, n));
+const format_number = ({ n, precision, locale }) => {
+    const s = new Intl.NumberFormat(locale, { maximumFractionDigits: precision }).format(n);
+    // XXX prevent MathJax from inserting a space after a comma
+    // http://tex.stackexchange.com/questions/303110/ddg#303127
+    return s.replace(/,/g, '{,}');
+}
 
-const code = (n, precision) => {
-    const fmt = `%.${precision}f`;
-    const fmt_with_max_precision = `%.${MAX_PRECISION}f`;
-    console.log('fmt=', fmt);
+const format = ({ n, precision, func, reverse, locale }) => {
+    const result = func(n);
 
-    const sqrt = Math.sqrt(n);
-    const sqrt_with_precision = parseFloat(printf(fmt_with_max_precision, sqrt));
-    const sqrt_is_exact = Math.pow(sqrt_with_precision, 2) === n;
-    const sqrt_equals = sqrt_is_exact ? '=' : _r`\approx`;
-    const sqrt_fmt = format(sqrt, sqrt_is_exact, fmt);
+    return {
+        value: result,
+        equals: reverse(parseInt(result)) === n ? '=' : `\\approx`,
+        str: format_number({ n: result, precision, locale }),
+        reverse,
+    }
+}
 
-    const sqrt3 = Math.pow(n, 1 / 3);
-    const sqrt3_with_precision = parseFloat(printf(fmt_with_max_precision, sqrt3));
-    const sqrt3_is_exact = Math.pow(sqrt3_with_precision, 3) === n;
-    const sqrt3_equals = sqrt3_is_exact ? '=' : _r`\approx`;
-    const sqrt3_fmt = format(sqrt3, sqrt3_is_exact, fmt);
+const code = ({ n, precision, locale }) => {
+    const n_str = format_number({ n, precision, locale });
+    const sqrt = format({ n, precision, func: Math.sqrt, reverse: r => Math.pow(r, 2) })
+    const sqrt3 = format({ n, precision, func: Math.cbrt, reverse: r => Math.pow(r, 3) })
 
     return [
-        _r`\sqrt{${n}} ${sqrt_equals} ${sqrt_fmt} \to \\ ${sqrt_fmt}^2 = ${sqrt_fmt}\times${sqrt_fmt} ${sqrt_equals} ${n}`,
-        _r`\sqrt[3]{${n}} ${sqrt3_equals} ${sqrt3_fmt} \to \\ ${sqrt3_fmt}^3=${sqrt3_fmt}\times${sqrt3_fmt}\times${sqrt3_fmt} ${sqrt3_equals} ${n}`,
+        _r`\sqrt{${n_str}} ${sqrt.equals} ${sqrt.str} \to \\ ${sqrt.str}^2 = ${sqrt.str}\times${sqrt.str} ${sqrt.equals} ${n_str}`,
+        _r`\sqrt[3]{${n_str}} ${sqrt3.equals} ${sqrt3.str} \to \\ ${sqrt3.str}^3 = ${sqrt3.str}\times${sqrt3.str}\times${sqrt3.str} ${sqrt3.equals} ${n_str}`,
 
-        _r`${n}^2=${n} \times ${n}=${Math.pow(n, 2)}`,
-        _r`${n}^3=${n} \times ${n}\times${n}=${Math.pow(n, 3)}`,
-
-        //         `\sqrt[3]{${n}}=${sqrt3}\rightarrow
-        //   \\${sqrt3}^3=${sqrt3}\times${sqrt3}\times${sqrt3}=${n}`
+        _r`${n_str}^2=${n_str} \times ${n_str}=${format_number({ n: sqrt.reverse(n), precision })}`,
+        _r`${n_str}^3=${n_str} \times ${n_str}\times${n_str}=${format_number({ n: sqrt3.reverse(n), precision })}`,
     ];
 }
 
 
 const Equations = props => {
-    const { n, precision, padding, ...rest } = props;
+    const { n, padding, ...rest } = props;
+    let { precision } = props;
+
     if (isNaN(n) || isNaN(precision))
         return <Typography variant="p">Enter a number</Typography>;
+
+    if (precision < 0) {
+        precision = DEFAULT_PRECISION
+    }
 
     return (
         <Box {...rest}>
             {
-                code(n, precision < 0 ? DEFAULT_PRECISION : precision).map((eq, idx) =>
+                code({ n, precision }).map((eq, idx) =>
                     <Box sx={{ margin: padding, border: 'dashed 1px maroon', padding }}>
-                        <MathJaxProvider>
-                            <Equation key={idx} index={idx} formula={eq} />
-                        </MathJaxProvider>
+                        <Equation key={idx} index={idx} formula={eq} />
                     </Box>
                 )
             }
-            {/* </MathJaxProvider> */}
         </Box >
     );
 }
