@@ -3,11 +3,11 @@ import pf from "quick-primefactors";
 import * as _ from "lodash";
 import { MathJaxNode } from "@yozora/react-mathjax";
 import PropTypes from "prop-types";
+import { MAX_NUMBER } from "./config";
+import { gcd, lcm } from "mathjs";
 
-const MAX_ALLOWED = 9999 + 1;
-
-const PrimeFactors = ({ n, ...rest }) => {
-  const prime_factors = n >= MAX_ALLOWED ? [] : pf(n);
+const PrimeFactors = ({ n, n2, ...rest }) => {
+  const prime_factors = n >= MAX_NUMBER ? [] : pf(n);
   const pf_grouped = _.groupBy(prime_factors);
   console.log("pf_grouped=", pf_grouped);
   const formula = `\\,(${n}=${_.map(
@@ -28,20 +28,21 @@ const PrimeFactors = ({ n, ...rest }) => {
     );
   } else {
     contents = (
-      <div>
+      <Box>
         <Typography variant="p">
           Prime {factors.length > 1 ? "factors" : "factor"} of {n}{" "}
           {factors.length > 1 ? "are" : "is"} {_.sortBy(factors).join(", ")}{" "}
           &mdash;{" "}
         </Typography>
-
         <Typography variant="p">
           {n} is a{" "}
           <strong>{prime_factors.length > 1 ? "composite" : "prime"}</strong>{" "}
           number
           {prime_factors.length > 1 && grouped}.
         </Typography>
-      </div>
+        GCD({n},{n2})(aka HCF)={n2 !== undefined && !isNaN(n2) && gcd(n, n2)}
+        LCM({n},{n2})={n2 !== undefined && !isNaN(n2) && lcm(n, n2)}
+      </Box>
     );
   }
 

@@ -1,5 +1,4 @@
-import { useState } from "react";
-import Equations, { DEFAULT_PRECISION, MAX_PRECISION } from "./Equations";
+import Equations from "./Equations";
 import {
   Box,
   FormControl,
@@ -12,30 +11,37 @@ import {
 import PrimeFactors from "./PrimeFactors";
 import PropTypes from "prop-types";
 import Grid from "./Grid";
-
-const MAX_NUMBER = 9999 + 1;
+import { MAX_NUMBER, MAX_PRECISION, DEFAULT_PRECISION } from "./config";
+import { useState } from "./useState";
 
 const App = ({ padding = ".5rem" }) => {
-  const [number, setNumber] = useState(64);
-  const [precision, setPrecision] = useState(DEFAULT_PRECISION);
-  const [fontSize, setFontSize] = useState("20pt");
+  const [number, setNumber] = useState("number", 911112);
+  const [number2, setNumber2] = useState("number2", 81);
+  const [precision, setPrecision] = useState("precision", DEFAULT_PRECISION);
+  const [fontSize, setFontSize] = useState("fontSize", 20);
+  const fontSizePt = `${fontSize}pt`;
   const n = parseInt(number);
-  const precision_int = parseInt(precision);
-  // const prime_factors = n < 1000000 ? pf(n) : [];
+  const n2 = parseInt(number2);
+  let precision_int = parseInt(precision);
+  if (isNaN(precision_int)) {
+    precision_int = DEFAULT_PRECISION;
+  }
 
   const rendered =
     isNaN(n) || n >= MAX_NUMBER ? (
-      <Typography>Please enter number smaller than {MAX_NUMBER}.</Typography>
+      <Typography>
+        Please enter a number which smaller than {MAX_NUMBER}.
+      </Typography>
     ) : (
-      <Box sx={{ border: "solid 0px green", p:1 }}>
+      <Box sx={{ border: "solid 0px green", p: 1 }}>
         {/* TODO split equations and prime factors to two columns */}
         <Equations
           n={n}
           precision={precision_int}
-          sx={{ fontSize }}
+          sx={{ fontSize: fontSizePt }}
           padding={padding}
         />
-        <PrimeFactors n={n} sx={{ fontSize, padding }} />
+        <PrimeFactors n={n} n2={n2} sx={{ fontSize: fontSizePt, padding }} />
       </Box>
     );
 
@@ -49,21 +55,31 @@ const App = ({ padding = ".5rem" }) => {
           <Box sx={{ border: "solid 0px red" }}>
             <Grid container spacing={1}>
               {/* number */}
-              <Grid lg={5} md={7} xs={8}>
+              <Grid>
                 <TextField
                   required
                   id="outlined-required"
-                  label="Number"
+                  label="Number 1"
                   type="number"
-                  // defaultValue="1"
                   value={number}
                   onChange={(event) => setNumber(event.target.value)}
                   size="standard"
                 />
               </Grid>
+              <Grid>
+                <TextField
+                  required
+                  id="outlined-required"
+                  label="Number 2"
+                  type="number"
+                  value={number2}
+                  onChange={(event) => setNumber2(event.target.value)}
+                  size="standard"
+                />
+              </Grid>
 
               {/* precision */}
-              <Grid lg={7} md={5} xs={4}>
+              <Grid lg={7} md={5} xs={3}>
                 <FormControl fullWidth>
                   <InputLabel id="demo-simple-select-label">
                     Precision
@@ -85,7 +101,7 @@ const App = ({ padding = ".5rem" }) => {
               </Grid>
 
               {/* font size */}
-              <Grid lg={7} md={5} xs={4}>
+              <Grid lg={7} md={5} xs={3}>
                 <FormControl fullWidth>
                   <InputLabel id="demo-simple-select-label">
                     Font size
