@@ -1,7 +1,7 @@
 {
   "name": "simple_calc",
   "private": true,
-  "version": "0.2.1",
+  "version": "0.2.2",
   "type": "module",
   "scripts": {
     "dev_serve": "vite --host 0.0.0.0",
